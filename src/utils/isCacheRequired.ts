@@ -6,6 +6,6 @@ export default function isCacheRequired(): boolean {
     return (
         core.getInput(Inputs.Required, {
             required: false
-        }) !== "false"
+        }) === "true"
     );
 }
