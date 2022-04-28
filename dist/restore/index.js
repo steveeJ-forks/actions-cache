@@ -59694,7 +59694,7 @@ const constants_1 = __nccwpck_require__(8593);
 function isCacheRequired() {
     return (core.getInput(constants_1.Inputs.Required, {
         required: false
-    }) !== "false");
+    }) === "true");
 }
 exports.default = isCacheRequired;
 
