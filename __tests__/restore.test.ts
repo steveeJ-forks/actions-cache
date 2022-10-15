@@ -257,15 +257,15 @@ test("required restore with no cache found", async () => {
     );
 });
 
-test("restore with server error should fail", async () => {
+test("restore with server error should fail when required is true", async () => {
     const path = "node_modules";
     const key = "node-test";
     testUtils.setInputs({
         path: path,
-        key
+        key,
+        required: true
     });
 
-    const logWarningMock = jest.spyOn(actionUtils, "logWarning");
     const failedMock = jest.spyOn(core, "setFailed");
     const stateMock = jest.spyOn(core, "saveState");
     const restoreCacheMock = jest
@@ -273,7 +273,6 @@ test("restore with server error should fail", async () => {
         .mockImplementationOnce(() => {
             throw new Error("HTTP Error Occurred");
         });
-    const setCacheHitOutputMock = jest.spyOn(actionUtils, "setCacheHitOutput");
 
     await run();
 
@@ -282,13 +281,7 @@ test("restore with server error should fail", async () => {
 
     expect(stateMock).toHaveBeenCalledWith("CACHE_KEY", key);
 
-    expect(logWarningMock).toHaveBeenCalledTimes(1);
-    expect(logWarningMock).toHaveBeenCalledWith("HTTP Error Occurred");
-
-    expect(setCacheHitOutputMock).toHaveBeenCalledTimes(1);
-    expect(setCacheHitOutputMock).toHaveBeenCalledWith(false);
-
-    expect(failedMock).toHaveBeenCalledTimes(0);
+    expect(failedMock).toHaveBeenCalledTimes(1);
 });
 
 test("restore with restore keys and no cache found", async () => {

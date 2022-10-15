@@ -16,7 +16,6 @@ export default async function restore(): Promise<boolean> {
     const restoreKeys = getRestoreKeys();
     const cachePaths = getCachePaths();
 
-    try {
         const cacheKey = await cache.restoreCache(
             cachePaths,
             primaryKey,
@@ -41,26 +40,6 @@ export default async function restore(): Promise<boolean> {
 
         const isExactKeyMatch = utils.isExactKeyMatch(primaryKey, cacheKey);
         utils.setCacheHitOutput(isExactKeyMatch);
-
         core.info(`Cache restored from key: ${cacheKey}`);
         return true;
-    } catch (error) {
-        // When cache is not required, any non-input failures (such as network
-        // failures) are allowed so they don't unnecessarily hold up the job
-
-        const typedError = error as Error;
-
-        if (isCacheRequired()) {
-            throw typedError;
-        } else {
-            if (typedError.name === cache.ValidationError.name) {
-                throw typedError;
-            } else {
-                utils.logWarning(typedError.message);
-                utils.setCacheHitOutput(false);
-            }
-        }
-
-        return false;
-    }
 }
