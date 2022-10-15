@@ -4,12 +4,12 @@ These actions allow caching dependencies and build outputs to eliminate duplicat
 
 The following actions are available:
 
-- `martijnhols/actions-cache@v3`
+- `martijnhols/actions-cache@v3` (mostly matches the base repository)
 - `martijnhols/actions-cache/restore@v3`
 - `martijnhols/actions-cache/save@v3`
 - `martijnhols/actions-cache/check@v3`
 
-While this is a fork, there are currently no plans to merge this into GitHub's [actions/cache](https://github.com/actions/cache) since GitHub does not appear to be reviewing [P](https://github.com/actions/cache/pull/466)[R](https://github.com/actions/cache/pull/474)[s](https://github.com/actions/toolkit/pull/659) and so making this mergeable would be a waste of time. This repository will be available on its own.
+> While this is a fork, there are currently no plans to merge this into GitHub's [actions/cache](https://github.com/actions/cache) since GitHub does not appear to be reviewing [P](https://github.com/actions/cache/pull/466)[R](https://github.com/actions/cache/pull/474)[s](https://github.com/actions/toolkit/pull/659) and so making this mergeable would be a waste of time. This repository will be available on its own.
 
 - [Action documentation](#actions)
 - [Recipes](#recipes)
@@ -26,7 +26,7 @@ This can be used for caching a step such as installing dependencies which are no
 
 * `path` - **Required** - A list of files, directories, and wildcard patterns to cache and restore. See [`@actions/glob`](https://github.com/actions/toolkit/tree/main/packages/glob) for supported patterns. 
 * `key` - **Required** - An explicit key for restoring and saving the cache
-* `restore-keys` - An ordered list of keys to use for restoring the cache if no cache hit occurred for key
+* `restore-keys` - An ordered list of prefix-matched keys to use for restoring stale cache if no cache hit occurred for key.
 * `upload-chunk-size` - The chunk size used to split up large files during upload, in bytes
 
 #### Outputs
@@ -44,7 +44,7 @@ This action will read data from the cache and place it in at the provided path.
 
 * `path` - **Required** - A list of files, directories, and wildcard patterns to cache and restore. See [`@actions/glob`](https://github.com/actions/toolkit/tree/main/packages/glob) for supported patterns. 
 * `key` - **Required** - An explicit key for restoring and saving the cache
-* `restore-keys` - An ordered list of keys to use for restoring the cache if no cache hit occurred for key
+* `restore-keys` - An ordered list of prefix-matched keys to use for restoring stale cache if no cache hit occurred for key.
 * `required` - When set to `true`, the action will fail if an exact match could not be found.
 
 #### Outputs
@@ -83,7 +83,7 @@ This action will check if an exact match is available in the cache without downl
 These recipes serve as examples. For simplicity sake some irrelevant steps (such as setup-node) are omitted.
 
 <details id="just-caching">
-<summary><a href="#just-caching">🔗</a> Just caching</summary>
+<summary><a href="#just-caching">🔗</a> Just caching (like the base actions/cache)</summary>
 
 This caches `node_modules` folder. Using the [Skipping steps based on cache-hit](#skipping-steps-based-on-cache-hit) solution, this only installs dependencies if the cache did not return an exact match.
 
@@ -446,7 +446,7 @@ A cache key can include any of the contexts, functions, literals, and operators 
 For example, using the [`hashFiles`](https://help.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#hashfiles) function allows you to create a new cache when dependencies change.
 
 ```yaml
-  - uses: actions/cache@v2
+  - uses: martijnhols/actions-cache@v3
     with:
       path: | 
         path/to/dependencies
@@ -464,7 +464,7 @@ Additionally, you can use arbitrary command output in a cache key, such as a dat
       echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
     shell: bash
 
-  - uses: actions/cache@v2
+  - uses: martijnhols/actions-cache@v3
     with:
       path: path/to/dependencies
       key: ${{ runner.os }}-${{ steps.get-date.outputs.date }}-${{ hashFiles('**/lockfiles') }}
@@ -481,9 +481,7 @@ If you are only using the save action, sometimes you need to compute the cache-k
 
 ## Cache Limits
 
-A repository can have up to 5GB of caches. Once the 5GB limit is reached, older caches will be evicted based on when the cache was last accessed. Caches that are not accessed within the last week will also be evicted.
-
-> I have personally never encountered issues with cache being evicted. If the total cache used in your workflows approaches the 5GB limit I recommend reconsidering using cache for sharing data across jobs.
+A repository can have up to 10GB of caches. Once the 10GB limit is reached, older caches will be evicted based on when the cache was last accessed. Caches that are not accessed within the last week will also be evicted.
 
 ## Skipping steps based on cache-hit
 
@@ -494,7 +492,7 @@ Example:
 steps:
   - uses: actions/checkout@v2
 
-  - uses: actions/cache@v2
+  - uses: martijnhols/actions-cache@v3
     id: cache
     with:
       path: path/to/dependencies
@@ -505,7 +503,7 @@ steps:
     run: /install.sh
 ```
 
-> Note: The `id` defined in `actions/cache` must match the `id` in the `if` statement (i.e. `steps.[ID].outputs.cache-hit`)
+> Note: The `id` defined in the cache step must match the `id` in the `if` statement (i.e. `steps.[ID].outputs.cache-hit`)
 
 ## License
 The scripts and documentation in this project are released under the [MIT License](LICENSE)
