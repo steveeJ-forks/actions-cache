@@ -1,5 +1,5 @@
-import * as cache from "@martijnhols/actions-cache";
 import * as core from "@actions/core";
+import * as cache from "@martijnhols/actions-cache";
 
 import * as actionUtils from "../src/utils/actionUtils";
 import { Events, Outputs, RefKey, State } from "../src/utils/constants";

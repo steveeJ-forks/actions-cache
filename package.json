@@ -7,10 +7,10 @@
   "scripts": {
     "build": "tsc && ncc build -o dist/restore src/restore.ts && ncc build -o dist/save src/save.ts && ncc build -o dist/saveOnly src/saveOnly.ts && ncc build -o dist/check src/check.ts",
     "test": "tsc --noEmit && jest --coverage",
-    "lint": "eslint **/*.ts --cache",
-    "lint:fix": "eslint **/*.ts --cache --fix",
-    "format": "prettier --write **/*.ts",
-    "format-check": "prettier --check **/*.ts"
+    "lint": "eslint \"**/*.ts\" --cache",
+    "lint:fix": "eslint \"**/*.ts\" --cache --fix",
+    "format": "prettier --write \"**/*.ts\"",
+    "format-check": "prettier --check \"**/*.ts\""
   },
   "repository": {
     "type": "git",

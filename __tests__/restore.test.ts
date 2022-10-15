@@ -61,7 +61,7 @@ test("restore without AC available should fail", async () => {
     jest.spyOn(actionUtils, "isCacheFeatureAvailable").mockImplementation(
         () => false
     );
-    
+
     const restoreCacheMock = jest.spyOn(cache, "restoreCache");
     const failedMock = jest.spyOn(core, "setFailed");
 

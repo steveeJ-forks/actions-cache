@@ -1,5 +1,5 @@
-import * as cache from "@martijnhols/actions-cache";
 import * as core from "@actions/core";
+import * as cache from "@martijnhols/actions-cache";
 
 import { Outputs, RefKey, State } from "./constants";
 
