@@ -31,7 +31,7 @@ async function run(): Promise<void> {
 
         await save(primaryKey);
     } catch (error) {
-        utils.logWarning(error.message);
+        utils.logWarning((error as Error).message);
     }
 }
 

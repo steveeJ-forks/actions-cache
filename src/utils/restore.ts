@@ -48,13 +48,15 @@ export default async function restore(): Promise<boolean> {
         // When cache is not required, any non-input failures (such as network
         // failures) are allowed so they don't unnecessarily hold up the job
 
+        const typedError = error as Error;
+
         if (isCacheRequired()) {
-            throw error;
+            throw typedError;
         } else {
-            if (error.name === cache.ValidationError.name) {
-                throw error;
+            if (typedError.name === cache.ValidationError.name) {
+                throw typedError;
             } else {
-                utils.logWarning(error.message);
+                utils.logWarning(typedError.message);
                 utils.setCacheHitOutput(false);
             }
         }

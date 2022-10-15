@@ -9,7 +9,7 @@ async function run(): Promise<void> {
 
         await restore();
     } catch (error) {
-        core.setFailed(error.message);
+        core.setFailed((error as Error).message);
     }
 }
 

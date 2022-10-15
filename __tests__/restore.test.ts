@@ -34,6 +34,9 @@ beforeEach(() => {
     process.env[RefKey] = "refs/heads/feature-branch";
 
     jest.spyOn(actionUtils, "isGhes").mockImplementation(() => false);
+    jest.spyOn(actionUtils, "isCacheFeatureAvailable").mockImplementation(
+        () => true
+    );
 });
 
 afterEach(() => {
@@ -53,20 +56,70 @@ test("restore with invalid event fails", async () => {
     );
 });
 
-test("restore on GHES fails", async () => {
-    jest.spyOn(actionUtils, "isGhes").mockImplementation(() => true);
-
-    const failedMock = jest.spyOn(core, "setFailed");
+test("restore without AC available should fail", async () => {
+    jest.spyOn(actionUtils, "isGhes").mockImplementation(() => false);
+    jest.spyOn(actionUtils, "isCacheFeatureAvailable").mockImplementation(
+        () => false
+    );
+    
     const restoreCacheMock = jest.spyOn(cache, "restoreCache");
-    const setCacheHitOutputMock = jest.spyOn(actionUtils, "setCacheHitOutput");
+    const failedMock = jest.spyOn(core, "setFailed");
+
+    testUtils.setInput(Inputs.Path, "node_modules");
 
     await run();
 
     expect(restoreCacheMock).toHaveBeenCalledTimes(0);
-    expect(setCacheHitOutputMock).toHaveBeenCalledTimes(0);
-    expect(failedMock).toHaveBeenCalledWith(
-        "Cache action is not supported on GHES. See https://github.com/actions/cache/issues/505 for more details"
+    expect(failedMock).toHaveBeenCalled();
+});
+
+test("restore on GHES without AC available should fail", async () => {
+    jest.spyOn(actionUtils, "isGhes").mockImplementation(() => true);
+    jest.spyOn(actionUtils, "isCacheFeatureAvailable").mockImplementation(
+        () => false
     );
+
+    const restoreCacheMock = jest.spyOn(cache, "restoreCache");
+    const failedMock = jest.spyOn(core, "setFailed");
+
+    testUtils.setInput(Inputs.Path, "node_modules");
+
+    await run();
+
+    expect(restoreCacheMock).toHaveBeenCalledTimes(0);
+    expect(failedMock).toHaveBeenCalled();
+});
+
+test("restore on GHES with AC available ", async () => {
+    jest.spyOn(actionUtils, "isGhes").mockImplementation(() => true);
+    const path = "node_modules";
+    const key = "node-test";
+    testUtils.setInputs({
+        path: path,
+        key
+    });
+
+    const infoMock = jest.spyOn(core, "info");
+    const failedMock = jest.spyOn(core, "setFailed");
+    const stateMock = jest.spyOn(core, "saveState");
+    const setCacheHitOutputMock = jest.spyOn(actionUtils, "setCacheHitOutput");
+    const restoreCacheMock = jest
+        .spyOn(cache, "restoreCache")
+        .mockImplementationOnce(() => {
+            return Promise.resolve(key);
+        });
+
+    await run();
+
+    expect(restoreCacheMock).toHaveBeenCalledTimes(1);
+    expect(restoreCacheMock).toHaveBeenCalledWith([path], key, []);
+
+    expect(stateMock).toHaveBeenCalledWith("CACHE_KEY", key);
+    expect(setCacheHitOutputMock).toHaveBeenCalledTimes(1);
+    expect(setCacheHitOutputMock).toHaveBeenCalledWith(true);
+
+    expect(infoMock).toHaveBeenCalledWith(`Cache restored from key: ${key}`);
+    expect(failedMock).toHaveBeenCalledTimes(0);
 });
 
 test("restore with no path should fail", async () => {

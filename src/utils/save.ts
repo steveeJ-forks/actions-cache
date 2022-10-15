@@ -15,12 +15,14 @@ export default async function save(primaryKey: string): Promise<void> {
         });
         core.info(`Cache saved with key: ${primaryKey}`);
     } catch (error) {
-        if (error.name === cache.ValidationError.name) {
-            throw error;
-        } else if (error.name === cache.ReserveCacheError.name) {
-            core.info(error.message);
+        const typedError = error as Error
+
+        if (typedError.name === cache.ValidationError.name) {
+            throw typedError;
+        } else if (typedError.name === cache.ReserveCacheError.name) {
+            core.info(typedError.message);
         } else {
-            utils.logWarning(error.message);
+            utils.logWarning(typedError.message);
         }
     }
 }
