@@ -1,5 +1,7 @@
 # Releases
 
+The below releases are from the base `actions/cache` repository. The changes specific to this fork are considered feature complete, and rarely changed.
+
 ### 3.0.0
 - Updated minimum runner version support from node 12 -> node 16
 
